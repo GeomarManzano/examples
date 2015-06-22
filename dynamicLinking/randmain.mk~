@@ -1,0 +1,26 @@
+CC=gcc
+OPTIMIZE=-O2
+CFLAGS=$(OPTIMIZE) -g3 -Wall -Wextra -march=native -mtune=native -mrdrnd
+
+all: randmain
+
+randcpuid.o: randcpuid.c
+	$(CC) $(CFLAGS) -c randcpuid.c
+
+randlibhw.o: randlibhw.c
+	$(CC) $(CFLAGS) -c -Wall -fPIC randlibhw.c
+
+randlibhw.so: randlibhw.o
+	$(CC) $(CFLAGS) -shared randlibhw.o -o randlibhw.so
+
+randlibsw.o: randlibsw.c
+	$(CC) $(CFLAGS) -c -Wall -fPIC randlibsw.c
+
+randlibsw.so: randlibsw.o
+	$(CC) $(CFLAGS) -shared randlibsw.o -o randlibsw.so
+
+randmain.o: randmain.c
+	$(CC) $(CFLAGS) -c randmain.c
+
+randmain: randmain.o randcpuid.o randlibsw.so randlibhw.so
+	$(CC) $(CFLAGS) randmain.o randcpuid.o -o randmain -ldl -Wl,-rpath=$(PWD)
